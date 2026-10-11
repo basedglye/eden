@@ -13,6 +13,7 @@
     "@eden/cas": "*",
     "@eden/home": "*",
     "@eden/registry": "*",
-    "@eden/recovery": "*"
+    "@eden/recovery": "*",
+    "@noble/hashes": "^1.7.0"
   }
 }

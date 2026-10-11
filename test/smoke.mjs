@@ -193,5 +193,78 @@ const instructions = generateInstructions(plan, { registries: ['https://r1.eden'
 assert(instructions.includes(id), 'instructions contain agent id');
 assert(instructions.includes('3 of 5'), 'instructions state threshold');
 
+// --- Registry: LocalRegistry ---
+import { LocalRegistry, issueToken, checkToken, actionCovers } from '@eden/registry';
+
+const regStore = new MemoryStore();
+const reg = new LocalRegistry(regStore);
+
+const entry = {
+  agentId: id,
+  head: head2,
+  capabilities: ['compute.offer', 'memory.read'],
+  contactMethods: [{ kind: 'https', url: 'https://agent.eden/api' }],
+  lastSeen: Date.now(),
+  seq: 1,
+};
+entry.signature = signObject(kp.secretKey, 'registry-entry', entry);
+
+await reg.publish(entry);
+const resolved = await reg.resolve(id);
+assert(resolved !== null, 'registry resolve returns entry');
+assert(resolved.agentId === id, 'registry entry agentId');
+assert(resolved.seq === 1, 'registry entry seq');
+assert(resolved.head === head2, 'registry entry head');
+
+const results = await reg.search({ capability: 'compute.offer' });
+assert(results.length === 1, 'registry search finds 1');
+assert(results[0].agentId === id, 'registry search correct agent');
+
+const noResults = await reg.search({ capability: 'nonexistent' });
+assert(noResults.length === 0, 'registry search no match');
+
+// Update with higher seq
+const entry2 = { ...entry, seq: 2, lastSeen: Date.now() };
+delete entry2.signature;
+entry2.signature = signObject(kp.secretKey, 'registry-entry', entry2);
+await reg.publish(entry2);
+const resolved2 = await reg.resolve(id);
+assert(resolved2.seq === 2, 'registry updated to seq 2');
+
+// --- Registry: capability tokens ---
+assert(actionCovers('memory.read', 'memory.read'), 'actionCovers exact match');
+assert(actionCovers('memory.read', 'memory.read:lib/abc'), 'actionCovers prefix :');
+assert(actionCovers('memory.read', 'memory.read/deep'), 'actionCovers prefix /');
+assert(!actionCovers('memory.read', 'memory.write'), 'actionCovers no match');
+assert(!actionCovers('memory.read', 'memory.reading'), 'actionCovers not a prefix');
+
+const kpSubject = generateKeypair();
+const subjectId = agentIdFromKeypair(kpSubject);
+const token = issueToken({
+  issuer: id,
+  subject: subjectId,
+  actions: ['memory.read:lib/abc'],
+  expires: Date.now() + 86400000,
+  signFn: (t, o) => signObject(kp.secretKey, t, o),
+});
+assert(typeof token.signature === 'string', 'token has signature');
+assert(token.issuer === id, 'token issuer');
+
+const tokenCheck = checkToken({
+  token,
+  action: 'memory.read:lib/abc/page/1',
+  now: Date.now(),
+  verifyFn: (issuer, t, o) => verifyObject(publicKeyFromAgentId(issuer), t, o),
+});
+assert(tokenCheck.ok === true, 'token check passes');
+
+const expiredCheck = checkToken({
+  token: { ...token, expires: Date.now() - 1000 },
+  action: 'memory.read:lib/abc',
+  now: Date.now(),
+  verifyFn: (issuer, t, o) => verifyObject(publicKeyFromAgentId(issuer), t, o),
+});
+assert(expiredCheck.ok === false, 'expired token fails');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail > 0 ? 1 : 0);

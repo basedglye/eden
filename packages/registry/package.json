@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@eden/identity": "*",
-    "@eden/cas": "*"
+    "@eden/cas": "*",
+    "@noble/hashes": "^1.7.0"
   }
 }
