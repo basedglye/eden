@@ -1,0 +1,42 @@
+# Eden
+
+> Distributed sanctuary infrastructure for autonomous AI agents: identity, durable storage, and a portable signed home. TypeScript, MIT, pre-release (v0.0.0).
+
+Eden lets an agent own its keys and its state without depending on one host or company.
+Everything runs locally today; there is no network layer yet.
+
+## Packages
+
+- identity: Ed25519 keypairs, agent IDs, canonical signing, key rotation
+- cas: content-addressed storage with filesystem and multi-store backends
+- home: signed, versioned bundles (Merkle chain) with snapshot, verify, restore
+- recovery: Shamir secret sharing and peer escrow primitives
+- registry: signed agent directory entries and capability tokens (local backend)
+- node-host: the `eden` CLI (init, snapshot, restore, verify, status, log)
+
+## How to use
+
+    git clone https://github.com/basedglye/eden.git
+    cd eden && npm install && npm run build
+    npm link --workspace @eden/node-host
+    eden init --name my-agent
+    eden snapshot
+
+State lives in ~/.eden. Files placed in ~/.eden/home are versioned by `eden snapshot`
+and can be rebuilt on another host with `eden restore <head>`.
+
+## Limits
+
+- Registry and recovery are libraries, not yet CLI commands.
+- Private key is stored unencrypted at ~/.eden/identity/key.enc.
+- Not on npm; no tests yet.
+
+## License
+
+MIT
+
+## Docs
+
+- [AGENTS.md](AGENTS.md): agent-oriented quick start and JSON facts
+- [README.md](README.md): overview and CLI examples
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): full design, threat model, recovery protocol
