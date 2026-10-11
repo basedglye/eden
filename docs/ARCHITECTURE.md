@@ -40,13 +40,13 @@ flowchart TB
         NH["apps/node-host (CLI)"]
     end
     subgraph Domain["Domain layer"]
-        REG["@eden/registry"]
-        REC["@eden/recovery"]
-        HOME["@eden/home"]
+        REG["@eden-sanctuary/registry"]
+        REC["@eden-sanctuary/recovery"]
+        HOME["@eden-sanctuary/home"]
     end
     subgraph Core["Core layer"]
-        CAS["@eden/cas"]
-        ID["@eden/identity"]
+        CAS["@eden-sanctuary/cas"]
+        ID["@eden-sanctuary/identity"]
     end
     subgraph Backends["Storage backends (pluggable)"]
         FS[(Filesystem)]
@@ -68,7 +68,7 @@ flowchart TB
     CAS --> S3
 ```
 
-Dependency rule: arrows point only downward. `@eden/identity` and `@eden/cas` have no Eden dependencies and are independent of each other. Domain packages never import each other except where drawn above; `apps/node-host` is the only place where they are composed.
+Dependency rule: arrows point only downward. `@eden-sanctuary/identity` and `@eden-sanctuary/cas` have no Eden dependencies and are independent of each other. Domain packages never import each other except where drawn above; `apps/node-host` is the only place where they are composed.
 
 ### 1.2 Lifecycle of an agent
 
@@ -115,22 +115,22 @@ sequenceDiagram
 ```
 eden/
   packages/
-    identity/    @eden/identity   keys, signing, rotation, AgentId
-    cas/         @eden/cas        IStore, hashing, backends
-    home/        @eden/home       HomeManifest, bundles, snapshots, restore
-    registry/    @eden/registry   directory entries, capability tokens, federation
-    recovery/    @eden/recovery   Shamir, escrow, recovery instructions
+    identity/    @eden-sanctuary/identity   keys, signing, rotation, AgentId
+    cas/         @eden-sanctuary/cas        IStore, hashing, backends
+    home/        @eden-sanctuary/home       HomeManifest, bundles, snapshots, restore
+    registry/    @eden-sanctuary/registry   directory entries, capability tokens, federation
+    recovery/    @eden-sanctuary/recovery   Shamir, escrow, recovery instructions
   apps/
     node-host/   eden CLI         init, start, snapshot, restore, register
 ```
 
 | Package | Responsibility | Depends on |
 |---|---|---|
-| `@eden/identity` | Keys, signatures, rotation chains | `@noble/curves`, `@noble/hashes` |
-| `@eden/cas` | Hash-addressed blob storage | `@noble/hashes` |
-| `@eden/home` | Signed manifest DAG, bundle/restore | identity, cas |
-| `@eden/registry` | Discovery and authorization | identity, cas |
-| `@eden/recovery` | Threshold backup of secrets | identity, cas |
+| `@eden-sanctuary/identity` | Keys, signatures, rotation chains | `@noble/curves`, `@noble/hashes` |
+| `@eden-sanctuary/cas` | Hash-addressed blob storage | `@noble/hashes` |
+| `@eden-sanctuary/home` | Signed manifest DAG, bundle/restore | identity, cas |
+| `@eden-sanctuary/registry` | Discovery and authorization | identity, cas |
+| `@eden-sanctuary/recovery` | Threshold backup of secrets | identity, cas |
 | `apps/node-host` | Composition, CLI, process supervision | all |
 
 ---
@@ -278,7 +278,7 @@ interface KeyRotation {
 
 ## 4. Packages in Detail
 
-### 4.1 `@eden/identity`
+### 4.1 `@eden-sanctuary/identity`
 
 **Role.** The root of trust. Generates keys, signs and verifies canonical payloads, and manages rotation.
 
@@ -309,7 +309,7 @@ function verifyRotationChain(agentId: AgentId, chain: KeyRotation[]): { currentK
 - **Canonical encoding.** All signed objects are encoded with a deterministic scheme (sorted keys, no whitespace, integers only, Maps as sorted pair arrays) and signed over a domain-separation prefix: `"eden/v1/<type>\0" || canonical(body)`. Domain separation prevents a signature on one object type being replayed as another.
 - **Key storage.** The package does not persist secrets. `node-host` stores the secret key encrypted at rest (see 4.6).
 
-### 4.2 `@eden/cas`
+### 4.2 `@eden-sanctuary/cas`
 
 **Role.** Everything durable is a blob named by its SHA-256. The store neither knows nor cares what the blob means.
 
@@ -367,7 +367,7 @@ flowchart LR
     I2 --> C4[chunk 4 - changed]
 ```
 
-### 4.3 `@eden/home`
+### 4.3 `@eden-sanctuary/home`
 
 **Role.** Turn a directory of agent state into a signed, verifiable, restorable version, and back.
 
@@ -432,9 +432,9 @@ A version points at its parent and shares unchanged blobs with it. Each parent p
 
 **Snapshots.** `snapshot` walks a live directory, hashes files (skipping those whose mtime+size match a local index), uploads new blobs, and creates the next manifest. Snapshots are cheap enough to run on a timer.
 
-**Secrets.** `processes[].env` and `configs` MUST NOT contain the agent's signing key. Secret material goes through `@eden/recovery`, not through the home bundle. Configs that must be confidential are sealed to the agent's own X25519 key (derived from the Ed25519 key) before being stored; the CAS holds only ciphertext.
+**Secrets.** `processes[].env` and `configs` MUST NOT contain the agent's signing key. Secret material goes through `@eden-sanctuary/recovery`, not through the home bundle. Configs that must be confidential are sealed to the agent's own X25519 key (derived from the Ed25519 key) before being stored; the CAS holds only ciphertext.
 
-### 4.4 `@eden/registry`
+### 4.4 `@eden-sanctuary/registry`
 
 **Role.** Discovery and authorization. A registry answers "where is agent X and what can it do?" and "is this token valid?" It never answers "should I trust agent X?"; that is each agent's local decision.
 
@@ -499,7 +499,7 @@ Properties:
 - **Transport-agnostic.** HTTPS first; libp2p later.
 - **Freshness.** `lastSeen` is agent-asserted. Registries expire entries not refreshed within a TTL (default 7 days) from search results, but keep them for resolve-by-id.
 
-### 4.5 `@eden/recovery`
+### 4.5 `@eden-sanctuary/recovery`
 
 **Role.** Make loss of the host, or of the key, survivable without a trusted custodian.
 

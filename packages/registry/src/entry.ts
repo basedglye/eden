@@ -1,4 +1,4 @@
-import type { AgentId } from '@eden/identity';
+import type { AgentId } from '@eden-sanctuary/identity';
 
 export type ContactMethod =
   | { kind: 'https'; url: string }

@@ -1,5 +1,5 @@
-import type { AgentId } from '@eden/identity';
-import type { ContentHash } from '@eden/cas';
+import type { AgentId } from '@eden-sanctuary/identity';
+import type { ContentHash } from '@eden-sanctuary/cas';
 
 export type Signature = string; // hex-encoded Ed25519 signature
 export type Timestamp = number; // ms since Unix epoch

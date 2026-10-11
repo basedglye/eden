@@ -1,6 +1,27 @@
 {
-  "name": "@eden/identity",
-  "version": "0.0.0",
+  "name": "@eden-sanctuary/identity",
+  "version": "0.1.0",
+  "description": "Ed25519 cryptographic identity for AI agents: keypairs, agent IDs, and canonical signing for autonomous agents in the Eden sanctuary",
+  "license": "MIT",
+  "author": "basedglye",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basedglye/eden.git",
+    "directory": "packages/identity"
+  },
+  "homepage": "https://github.com/basedglye/eden",
+  "keywords": [
+    "ai-agent",
+    "autonomous-agent",
+    "ed25519",
+    "cryptographic-identity",
+    "agent-identity",
+    "digital-identity",
+    "eden-sanctuary"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,8 +1,8 @@
-import { generateKeypair, sign, verify, agentIdFromKeypair, publicKeyFromAgentId, canonicalize, signObject, verifyObject, rotateKey, verifyRotationChain } from '@eden/identity';
-import { hash, MemoryStore, FsStore } from '@eden/cas';
-import { createBundle, verifyBundle, restoreBundle, loadManifest } from '@eden/home';
-import { snapshot, diff } from '@eden/home';
-import { split, combine, createRecoveryPlan, verifyRecoveryPlan, recoverSecret, generateInstructions } from '@eden/recovery';
+import { generateKeypair, sign, verify, agentIdFromKeypair, publicKeyFromAgentId, canonicalize, signObject, verifyObject, rotateKey, verifyRotationChain } from '@eden-sanctuary/identity';
+import { hash, MemoryStore, FsStore } from '@eden-sanctuary/cas';
+import { createBundle, verifyBundle, restoreBundle, loadManifest } from '@eden-sanctuary/home';
+import { snapshot, diff } from '@eden-sanctuary/home';
+import { split, combine, createRecoveryPlan, verifyRecoveryPlan, recoverSecret, generateInstructions } from '@eden-sanctuary/recovery';
 import { mkdtemp, rm, writeFile, readFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -194,7 +194,7 @@ assert(instructions.includes(id), 'instructions contain agent id');
 assert(instructions.includes('3 of 5'), 'instructions state threshold');
 
 // --- Registry: LocalRegistry ---
-import { LocalRegistry, issueToken, checkToken, actionCovers } from '@eden/registry';
+import { LocalRegistry, issueToken, checkToken, actionCovers } from '@eden-sanctuary/registry';
 
 const regStore = new MemoryStore();
 const reg = new LocalRegistry(regStore);

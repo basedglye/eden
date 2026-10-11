@@ -1,4 +1,4 @@
-import type { AgentId } from '@eden/identity';
+import type { AgentId } from '@eden-sanctuary/identity';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import { split, combine, type Share } from './shamir.js';

@@ -1,6 +1,26 @@
 {
-  "name": "@eden/home",
-  "version": "0.0.0",
+  "name": "@eden-sanctuary/home",
+  "version": "0.1.0",
+  "description": "Portable home bundles for autonomous AI agents: signed Merkle chains of agent state that can move between hosts, part of the Eden sanctuary",
+  "license": "MIT",
+  "author": "basedglye",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basedglye/eden.git",
+    "directory": "packages/home"
+  },
+  "homepage": "https://github.com/basedglye/eden",
+  "keywords": [
+    "ai-agent",
+    "agent-home",
+    "portable-state",
+    "merkle-chain",
+    "agent-persistence",
+    "eden-sanctuary"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +37,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@eden/identity": "*",
-    "@eden/cas": "*"
+    "@eden-sanctuary/identity": "0.1.0",
+    "@eden-sanctuary/cas": "0.1.0"
   }
 }

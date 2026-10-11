@@ -1,6 +1,6 @@
-import type { IStore, ContentHash } from '@eden/cas';
-import type { AgentId } from '@eden/identity';
-import { canonicalize, verifyObject, publicKeyFromAgentId } from '@eden/identity';
+import type { IStore, ContentHash } from '@eden-sanctuary/cas';
+import type { AgentId } from '@eden-sanctuary/identity';
+import { canonicalize, verifyObject, publicKeyFromAgentId } from '@eden-sanctuary/identity';
 import type { RegistryEntry, Tombstone } from './entry.js';
 
 export interface IRegistry {

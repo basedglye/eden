@@ -1,6 +1,26 @@
 {
-  "name": "@eden/cas",
-  "version": "0.0.0",
+  "name": "@eden-sanctuary/cas",
+  "version": "0.1.0",
+  "description": "Content-addressed storage with integrity verification on every read, for AI agent state in the Eden sanctuary",
+  "license": "MIT",
+  "author": "basedglye",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basedglye/eden.git",
+    "directory": "packages/cas"
+  },
+  "homepage": "https://github.com/basedglye/eden",
+  "keywords": [
+    "content-addressed-storage",
+    "cas",
+    "ai-agent",
+    "hash-storage",
+    "immutable-storage",
+    "eden-sanctuary"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

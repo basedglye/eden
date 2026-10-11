@@ -1,6 +1,26 @@
 {
-  "name": "@eden/node-host",
-  "version": "0.0.0",
+  "name": "@eden-sanctuary/node-host",
+  "version": "0.1.0",
+  "description": "Eden node host CLI: init, snapshot, restore, verify, status and log for autonomous AI agent sanctuary infrastructure",
+  "license": "MIT",
+  "author": "basedglye",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basedglye/eden.git",
+    "directory": "apps/node-host"
+  },
+  "homepage": "https://github.com/basedglye/eden",
+  "keywords": [
+    "eden-sanctuary",
+    "ai-agent",
+    "autonomous-agent",
+    "agent-host",
+    "cli",
+    "agent-infrastructure"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "bin": {
     "eden": "dist/index.js"
@@ -9,11 +29,11 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@eden/identity": "*",
-    "@eden/cas": "*",
-    "@eden/home": "*",
-    "@eden/registry": "*",
-    "@eden/recovery": "*",
-    "@noble/hashes": "^1.7.0"
+    "@noble/hashes": "^1.7.0",
+    "@eden-sanctuary/identity": "0.1.0",
+    "@eden-sanctuary/cas": "0.1.0",
+    "@eden-sanctuary/home": "0.1.0",
+    "@eden-sanctuary/registry": "0.1.0",
+    "@eden-sanctuary/recovery": "0.1.0"
   }
 }

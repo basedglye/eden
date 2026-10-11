@@ -3,11 +3,11 @@ import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
-import { generateKeypair, agentIdFromKeypair, publicKeyFromAgentId } from '@eden/identity';
-import type { Keypair, AgentId } from '@eden/identity';
-import { FsStore } from '@eden/cas';
-import type { ContentHash } from '@eden/cas';
-import { createBundle, verifyBundle, restoreBundle, loadManifest, snapshot } from '@eden/home';
+import { generateKeypair, agentIdFromKeypair, publicKeyFromAgentId } from '@eden-sanctuary/identity';
+import type { Keypair, AgentId } from '@eden-sanctuary/identity';
+import { FsStore } from '@eden-sanctuary/cas';
+import type { ContentHash } from '@eden-sanctuary/cas';
+import { createBundle, verifyBundle, restoreBundle, loadManifest, snapshot } from '@eden-sanctuary/home';
 
 export type Command = 'init' | 'snapshot' | 'restore' | 'verify' | 'status' | 'log';
 

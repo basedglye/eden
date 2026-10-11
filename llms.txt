@@ -18,7 +18,7 @@ Everything runs locally today; there is no network layer yet.
 
     git clone https://github.com/basedglye/eden.git
     cd eden && npm install && npm run build
-    npm link --workspace @eden/node-host
+    npm link --workspace @eden-sanctuary/node-host
     eden init --name my-agent
     eden snapshot
 

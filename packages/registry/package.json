@@ -1,6 +1,26 @@
 {
-  "name": "@eden/registry",
-  "version": "0.0.0",
+  "name": "@eden-sanctuary/registry",
+  "version": "0.1.0",
+  "description": "Agent registry, peer discovery and attenuable capability tokens for AI agents (A2A), part of the Eden sanctuary",
+  "license": "MIT",
+  "author": "basedglye",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basedglye/eden.git",
+    "directory": "packages/registry"
+  },
+  "homepage": "https://github.com/basedglye/eden",
+  "keywords": [
+    "agent-registry",
+    "peer-discovery",
+    "capability-tokens",
+    "ai-agent",
+    "a2a",
+    "eden-sanctuary"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,8 +37,8 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@eden/identity": "*",
-    "@eden/cas": "*",
-    "@noble/hashes": "^1.7.0"
+    "@noble/hashes": "^1.7.0",
+    "@eden-sanctuary/identity": "0.1.0",
+    "@eden-sanctuary/cas": "0.1.0"
   }
 }

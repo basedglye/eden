@@ -1,8 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import * as path from 'node:path';
-import type { ContentHash, IStore } from '@eden/cas';
-import { hash as casHash } from '@eden/cas';
-import type { Keypair } from '@eden/identity';
+import type { ContentHash, IStore } from '@eden-sanctuary/cas';
+import { hash as casHash } from '@eden-sanctuary/cas';
+import type { Keypair } from '@eden-sanctuary/identity';
 import type { HomeManifest } from './manifest.js';
 import { createBundle, loadManifest } from './bundle.js';
 

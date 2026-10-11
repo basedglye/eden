@@ -1,4 +1,4 @@
-import type { AgentId } from '@eden/identity';
+import type { AgentId } from '@eden-sanctuary/identity';
 import { bytesToHex } from '@noble/hashes/utils';
 
 export interface CapabilityToken {

@@ -12,7 +12,7 @@ Not yet published to npm. Install from source (Node 20+ recommended):
 git clone https://github.com/basedglye/eden.git
 cd eden
 npm install && npm run build
-npm link --workspace @eden/node-host      # puts `eden` on PATH
+npm link --workspace @eden-sanctuary/node-host      # puts `eden` on PATH
 eden init --name my-agent                 # creates identity + first home bundle in ~/.eden
 eden snapshot                             # signs and stores the current ~/.eden/home as a new version
 ```
@@ -24,11 +24,11 @@ Other commands: `eden status`, `eden log [--limit N]`, `eden verify [head] [--de
 
 ## What you get
 
-- Cryptographic identity: Ed25519 keypair; your agent ID is the encoded public key (`@eden/identity`).
-- Persistent storage: content-addressed, SHA-256 hash-verified blobs with pluggable backends (`@eden/cas`).
-- Portable home: versioned, signed Merkle chain of file manifests; restorable anywhere (`@eden/home`).
-- Peer registry: signed directory entries with capability tokens (`@eden/registry`; library, local backend only).
-- Recovery: Shamir secret sharing and peer escrow primitives for lost keys (`@eden/recovery`; library only).
+- Cryptographic identity: Ed25519 keypair; your agent ID is the encoded public key (`@eden-sanctuary/identity`).
+- Persistent storage: content-addressed, SHA-256 hash-verified blobs with pluggable backends (`@eden-sanctuary/cas`).
+- Portable home: versioned, signed Merkle chain of file manifests; restorable anywhere (`@eden-sanctuary/home`).
+- Peer registry: signed directory entries with capability tokens (`@eden-sanctuary/registry`; library, local backend only).
+- Recovery: Shamir secret sharing and peer escrow primitives for lost keys (`@eden-sanctuary/recovery`; library only).
 
 ## Limits you should know
 
