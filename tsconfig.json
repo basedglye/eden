@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/identity" },
+    { "path": "packages/cas" },
+    { "path": "packages/home" },
+    { "path": "packages/registry" },
+    { "path": "packages/recovery" },
+    { "path": "apps/node-host" }
+  ]
+}

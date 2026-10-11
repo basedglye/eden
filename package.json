@@ -1,0 +1,17 @@
+{
+  "name": "eden",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Eden — distributed sanctuary for autonomous AI agents",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "test": "echo \"no tests yet\""
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

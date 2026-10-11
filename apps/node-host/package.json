@@ -1,0 +1,18 @@
+{
+  "name": "@eden/node-host",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "eden": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@eden/identity": "*",
+    "@eden/cas": "*",
+    "@eden/home": "*",
+    "@eden/registry": "*",
+    "@eden/recovery": "*"
+  }
+}

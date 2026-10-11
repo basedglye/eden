@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../../packages/identity"
+    },
+    {
+      "path": "../../packages/cas"
+    },
+    {
+      "path": "../../packages/home"
+    },
+    {
+      "path": "../../packages/registry"
+    },
+    {
+      "path": "../../packages/recovery"
+    }
+  ]
+}
