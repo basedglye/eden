@@ -1,6 +1,9 @@
 import { generateKeypair, sign, verify, agentIdFromKeypair, publicKeyFromAgentId, canonicalize, signObject, verifyObject, rotateKey, verifyRotationChain } from '@eden/identity';
 import { hash, MemoryStore, FsStore } from '@eden/cas';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { createBundle, verifyBundle, restoreBundle, loadManifest } from '@eden/home';
+import { snapshot, diff } from '@eden/home';
+import { split, combine, createRecoveryPlan, verifyRecoveryPlan, recoverSecret, generateInstructions } from '@eden/recovery';
+import { mkdtemp, rm, writeFile, readFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -71,6 +74,124 @@ try {
 } finally {
   await rm(tmpDir, { recursive: true, force: true });
 }
+
+// --- Home: createBundle + verifyBundle ---
+const store = new MemoryStore();
+const files = new Map([
+  ['README.md', new TextEncoder().encode('# My Agent Home')],
+  ['config/settings.json', new TextEncoder().encode('{"model":"gpt-4"}')],
+]);
+const { head, manifest } = await createBundle({ store, keypair: kp, input: { files } });
+assert(typeof head === 'string' && head.length === 64, 'head is a content hash');
+assert(manifest.version === 1, 'genesis version is 1');
+assert(manifest.agentId === id, 'manifest agentId matches');
+assert(!manifest.parentHash, 'genesis has no parent');
+assert(Object.keys(manifest.files).length === 2, 'manifest has 2 files');
+assert(typeof manifest.signature === 'string', 'manifest has signature');
+
+const report = await verifyBundle({ store, head });
+assert(report.valid, 'bundle verifies');
+assert(report.errors.length === 0, 'no verification errors');
+
+// --- Home: second version with parent ---
+const files2 = new Map([
+  ['README.md', new TextEncoder().encode('# Updated Home')],
+  ['config/settings.json', new TextEncoder().encode('{"model":"gpt-4"}')],
+  ['data/memory.bin', new TextEncoder().encode('memories here')],
+]);
+const { head: head2, manifest: m2 } = await createBundle({
+  store, keypair: kp, input: { files: files2 },
+  parent: head, parentVersion: manifest.version,
+});
+assert(m2.version === 2, 'second version is 2');
+assert(m2.parentHash === head, 'parent hash points to v1');
+assert(Object.keys(m2.files).length === 3, 'v2 has 3 files');
+
+const report2 = await verifyBundle({ store, head: head2, depth: 2 });
+assert(report2.valid, 'v2 chain verifies');
+assert(report2.depth === 2, 'walked 2 levels');
+
+// --- Home: restoreBundle ---
+const restoreDir = await mkdtemp(join(tmpdir(), 'eden-restore-'));
+try {
+  const { filesRestored } = await restoreBundle({ store, head: head2, target: restoreDir });
+  assert(filesRestored === 3, 'restored 3 files');
+  const readme = await readFile(join(restoreDir, 'README.md'), 'utf8');
+  assert(readme === '# Updated Home', 'restored content matches');
+  const mem2 = await readFile(join(restoreDir, 'data', 'memory.bin'), 'utf8');
+  assert(mem2 === 'memories here', 'nested file restored');
+} finally {
+  await rm(restoreDir, { recursive: true, force: true });
+}
+
+// --- Home: snapshot from directory ---
+const snapDir = await mkdtemp(join(tmpdir(), 'eden-snap-'));
+const snapStore = new MemoryStore();
+try {
+  await mkdir(join(snapDir, 'sub'), { recursive: true });
+  await writeFile(join(snapDir, 'hello.txt'), 'hello');
+  await writeFile(join(snapDir, 'sub', 'world.txt'), 'world');
+
+  const s1 = await snapshot({ store: snapStore, keypair: kp, root: snapDir });
+  assert(s1.changed === 2, 'snapshot v1: 2 changed');
+  assert(s1.reused === 0, 'snapshot v1: 0 reused');
+  assert(s1.manifest.version === 1, 'snapshot v1 version');
+
+  await writeFile(join(snapDir, 'hello.txt'), 'hello updated');
+  const s2 = await snapshot({ store: snapStore, keypair: kp, root: snapDir, parent: s1.head });
+  assert(s2.changed === 1, 'snapshot v2: 1 changed');
+  assert(s2.reused === 1, 'snapshot v2: 1 reused');
+  assert(s2.manifest.version === 2, 'snapshot v2 version');
+
+  const d = await diff(snapStore, s1.head, s2.head);
+  assert(d.modified.length === 1 && d.modified[0] === 'hello.txt', 'diff: hello.txt modified');
+  assert(d.unchanged.length === 1, 'diff: 1 unchanged');
+  assert(d.added.length === 0 && d.removed.length === 0, 'diff: no added/removed');
+} finally {
+  await rm(snapDir, { recursive: true, force: true });
+}
+
+// --- Recovery: Shamir split/combine ---
+const secret = crypto.getRandomValues(new Uint8Array(32));
+const shares = split(secret, 3, 5);
+assert(shares.length === 5, 'split produces 5 shares');
+assert(shares[0].bytes.length === 32, 'share same length as secret');
+assert(shares[0].checksum.length === 32, 'checksum is sha256');
+
+const recovered = combine([shares[0], shares[2], shares[4]]);
+assert(Buffer.from(recovered).equals(Buffer.from(secret)), 'combine 3-of-5 recovers secret');
+
+const recovered2 = combine([shares[1], shares[3], shares[4]]);
+assert(Buffer.from(recovered2).equals(Buffer.from(secret)), 'combine different 3-of-5 also works');
+
+// --- Recovery: plan + recover ---
+const holders = [
+  generateKeypair(), generateKeypair(), generateKeypair(),
+  generateKeypair(), generateKeypair(),
+].map(k => agentIdFromKeypair(k));
+
+const { plan, shares: shareMap } = createRecoveryPlan({
+  secret: kp.secretKey,
+  agentId: id,
+  threshold: 3,
+  holders,
+  signFn: (type, obj) => signObject(kp.secretKey, type, obj),
+});
+assert(plan.threshold === 3, 'plan threshold');
+assert(plan.totalShares === 5, 'plan total shares');
+assert(plan.shareHolders.length === 5, 'plan has 5 holders');
+assert(typeof plan.signature === 'string', 'plan is signed');
+
+const planValid = verifyRecoveryPlan(plan, (type, obj) => verifyObject(kp.publicKey, type, obj));
+assert(planValid, 'plan signature verifies');
+
+const threeShares = [shareMap.get(holders[0]), shareMap.get(holders[2]), shareMap.get(holders[4])];
+const recoveredKey = recoverSecret({ plan, shares: threeShares });
+assert(Buffer.from(recoveredKey).equals(Buffer.from(kp.secretKey)), 'recovered key matches original');
+
+const instructions = generateInstructions(plan, { registries: ['https://r1.eden'], stores: ['https://s1.eden'], latestHead: head2 });
+assert(instructions.includes(id), 'instructions contain agent id');
+assert(instructions.includes('3 of 5'), 'instructions state threshold');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail > 0 ? 1 : 0);

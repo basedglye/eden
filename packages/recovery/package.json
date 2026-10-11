@@ -18,6 +18,6 @@
   },
   "dependencies": {
     "@eden/identity": "*",
-    "@noble/hashes": "^1.5.0"
+    "@noble/hashes": "^1.7.0"
   }
 }
