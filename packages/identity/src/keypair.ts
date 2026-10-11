@@ -1,23 +1,23 @@
+import { ed25519 } from '@noble/curves/ed25519';
+
 export interface Keypair {
   publicKey: Uint8Array;
-  privateKey: Uint8Array;
+  secretKey: Uint8Array;
 }
 
-export async function generateKeypair(): Promise<Keypair> {
-  // TODO: implement with @noble/ed25519 (etc.randomBytes + getPublicKeyAsync)
-  throw new Error('not implemented');
+export function generateKeypair(): Keypair {
+  const seed = crypto.getRandomValues(new Uint8Array(32));
+  return { publicKey: ed25519.getPublicKey(seed), secretKey: seed };
 }
 
-export async function sign(message: Uint8Array, privateKey: Uint8Array): Promise<Uint8Array> {
-  // TODO: implement
-  throw new Error('not implemented');
+export function sign(message: Uint8Array, secretKey: Uint8Array): Uint8Array {
+  return ed25519.sign(message, secretKey);
 }
 
-export async function verify(
-  message: Uint8Array,
-  signature: Uint8Array,
-  publicKey: Uint8Array,
-): Promise<boolean> {
-  // TODO: implement
-  throw new Error('not implemented');
+export function verify(message: Uint8Array, signature: Uint8Array, publicKey: Uint8Array): boolean {
+  try {
+    return ed25519.verify(signature, message, publicKey);
+  } catch {
+    return false;
+  }
 }
